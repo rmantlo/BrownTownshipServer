@@ -21,7 +21,6 @@ router.get('/getalluserinfo', (req, res) => {
 router.post('/createuser', (req, res) => {
     if (req.user.id == 1) {
         if (req.body.password.match("[a-z]+") && req.body.password.match("[A-Z]+") && req.body.password.match("[0-9]+") && req.body.password.length >= 8) {
-            console.log("It have the stuff!")
             User.create({
                 username: req.body.username,
                 passwordhash: bcrypt.hashSync(req.body.password, 10)
@@ -32,38 +31,43 @@ router.post('/createuser', (req, res) => {
                         message: 'user created'
                     })
                 })
-                .catch(err => res.status(500).json('user not created'))
+                .catch(err => res.status(500).json({ error: 'user not created' }))
         }
         else {
-            res.status(500).json({ message: "Password must be at least 8 characters long and contain upper and lower case letters and at least one number. Cannot contain special characters." })
+            res.status(500).json({ error: "Password must be at least 8 characters long and contain upper and lower case letters and at least one number. Cannot contain special characters." })
         }
     }
-    else { res.status(500).json("Only Main Admin Account can create new accounts") }
+    else { res.status(500).json({ error: "Only Main Admin Account can create new accounts" }) }
 })
 router.put('/updatepassword', (req, res) => {
     if (req.userid === 1) {
-        res.status(500).json('Cannot change default admin password, contact support');
+        res.status(500).json({ error: 'Cannot change default admin password, contact support' });
     } else {
         User.findOne({ where: { id: req.user.id } })
             .then(function (user) {
                 if (user) {
                     bcrypt.compare(req.body.oldPassword, user.passwordhash, (err, matches) => {
                         if (matches) {
-                            User.update({ passwordhash: bcrypt.hashSync(req.body.newPassword, 10) },
-                                { where: { id: req.user.id } }
-                            )
-                                .then(user => res.status(200).json(user), err => res.status(500).json(err))
-                                .catch(err => res.status(500).json(err))
+                            if (req.body.newPassword.match("[a-z]+") && req.body.newPassword.match("[A-Z]+") && req.body.newPassword.match("[0-9]+") && req.body.newPassword.length >= 8) {
+                                User.update({ passwordhash: bcrypt.hashSync(req.body.newPassword, 10) },
+                                    { where: { id: req.user.id } }
+                                )
+                                    .then(user => res.status(200).json(user), err => res.status(500).json(err))
+                                    .catch(err => res.status(500).json(err))
+                            }
+                            else {
+                                res.status(409).json({ error: "New password needs 8 characters, upper and lower case, and atleast one number. No special characters" });
+                            }
                         } else {
-                            res.status(500).json('old password not correct')
+                            res.status(500).json({ error: 'old password not correct' })
                         }
                     })
                 } else {
-                    res.status(500).json('user does not exist')
+                    res.status(500).json({ error: 'user does not exist' })
                 }
             },
                 function (err) {
-                    res.status(500).json('cannot find anything')
+                    res.status(500).json({ error: 'cannot find anything' })
                 })
             .catch(err => res.status(500).json(err))
     }
