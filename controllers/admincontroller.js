@@ -20,19 +20,23 @@ router.get('/getalluserinfo', (req, res) => {
 })
 router.post('/createuser', (req, res) => {
     if (req.user.id == 1) {
-        User.create({
-            username: req.body.username,
-            passwordhash: bcrypt.hashSync(req.body.password, 10)
-        })
-            .then(user => {
-                //let token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: 60 * 60 * 24 })
-                res.status(200).json({
-                    user: user,
-                    //'sessionToken': token,
-                    message: 'user created'
-                })
+        if (req.body.password.match("[a-z]+") && req.body.password.match("[A-Z]+") && req.body.password.match("[0-9]+") && req.body.password.length >= 8) {
+            console.log("It have the stuff!")
+            User.create({
+                username: req.body.username,
+                passwordhash: bcrypt.hashSync(req.body.password, 10)
             })
-            .catch(err => res.status(500).json('user not created'))
+                .then(user => {
+                    res.status(200).json({
+                        user: user,
+                        message: 'user created'
+                    })
+                })
+                .catch(err => res.status(500).json('user not created'))
+        }
+        else {
+            res.status(500).json({ message: "Password must be at least 8 characters long and contain upper and lower case letters and at least one number. Cannot contain special characters." })
+        }
     }
     else { res.status(500).json("Only Main Admin Account can create new accounts") }
 })

@@ -4,11 +4,11 @@ let User = sequelize.import('../models/users');
 let bcrypt = require('bcryptjs');
 
 module.exports = function (req, res) {
-    User.findOne({ where: { username: "browntwp" } })
+    User.findOne({ where: { username: process.env.ADMINUSERNAME } })
         .then(function (user) {
             if (!user) {
                 User.create({
-                    username: "browntwp",
+                    username: process.env.ADMINUSERNAME,
                     passwordhash: bcrypt.hashSync(process.env.ADMINPASS, 10)
                 })
                     .then()

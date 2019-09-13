@@ -1,4 +1,4 @@
-module.exports = function(sequelize, DataTypes){
+module.exports = function (sequelize, DataTypes) {
     return sequelize.define('user', {
         username: {
             type: DataTypes.STRING,
@@ -7,7 +7,10 @@ module.exports = function(sequelize, DataTypes){
         },
         passwordhash: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                min: 8
+            }
         }
     })
 }
