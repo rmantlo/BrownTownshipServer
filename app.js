@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 5
 
 app.use('/user', require('./controllers/usercontroller'));
 app.use('/posts', require('./controllers/eventcontroller'))
-app.use('/budget', require('./controllers/budgetcontroller'));
+app.use('/budget', require('./controllers/documentcontroller'));
 app.use(require('./middleware/validate-session'));
 app.use('/admin', require('./controllers/admincontroller'));
 

@@ -14,11 +14,11 @@ module.exports = function (sequelize, DataTypes) {
         },
         dateOfEvent: {
             type: DataTypes.DATEONLY,
-            allowNull: false
+            allowNull: true
         },
         timeOfEvent: {
             type: DataTypes.TIME,
-            allowNull: false
+            allowNull: true
         },
         type: {
             type: DataTypes.ENUM,

@@ -2,7 +2,7 @@ let express = require('express');
 let router = express.Router();
 let sequelize = require('../db');
 let User = sequelize.import('../models/users');
-let Budget = sequelize.import('../models/budgetFiles');
+let Budget = sequelize.import('../models/documents');
 let Event = sequelize.import('../models/events');
 let bcrypt = require('bcryptjs');
 let Op = require('sequelize').Op;
@@ -91,75 +91,31 @@ router.delete('/deleteotheruser/:id', (req, res) => {
     else { res.status(500).json("Only Main Admin Account can delete other accounts") }
 })
 
+
 //edit budget info::
-//get all budget files
-router.get('/allbudgetfiles', (req, res) => {
-    Budget.findAll({ order: [['fileYear', 'DESC']] })
-        .then(info => res.status(200).json(info))
-        .catch(err => res.status(500).json(err))
-})
 //create file
-router.post('/uploadbudgetfile', (req, res) => {
+router.post('/uploaddocument', (req, res) => {
     if (req.body.fileType != 'application/pdf') { res.status(500).json('File upload must be PDF') }
     else {
-        if (req.body.current === true) {
-            Budget.update({ current: false }, { where: { current: true } })
-                .then()
-                .catch(err => res.status(500).json({ error: err, message: "could not change current file to false." }))
-        }
+        Budget.create({
+            owner_id: req.user.id,
+            fileName: req.body.fileName,
+            documentType: req.body.documentType,
+            description: req.body.description,
+            fileDate: req.body.fileDate,
+            fileType: req.body.fileType,
+            fileBinary: req.body.data
+        })
+            .then(post => res.status(200).json(post))
+            .catch(err => res.status(500).json(err))
 
-        Budget.findOne({ where: { fileYear: req.body.year } })
-            .then(response => {
-                if (response == null) {
-                    Budget.create({
-                        owner_id: req.user.id,
-                        documentDesc: req.body.documentDesc,
-                        current: req.body.current,
-                        fileYear: req.body.year,
-                        fileType: req.body.fileType,
-                        fileName: req.body.fileName,
-                        fileBinary: req.body.data
-                    })
-                        .then(post => res.status(200).json(post))
-                        .catch(err => res.status(500).json(err))
-                }
-                else {
-                    Budget.destroy({ where: { id: response.id } })
-                        .then(info => {
-                            Budget.create({
-                                owner_id: req.user.id,
-                                documentDesc: req.body.documentDesc,
-                                current: req.body.current,
-                                fileYear: req.body.year,
-                                fileType: req.body.fileType,
-                                fileName: req.body.fileName,
-                                fileBinary: req.body.data
-                            })
-                                .then(post => res.status(200).json(post))
-                                .catch(err => res.status(500).json(err))
-                        })
-                        .catch(err => res.status(500).json({ error: err, message: "File of same year exists but could not be deleted, therefore new file was not saved" }))
-                }
-            })
-            .catch(err => res.status(500).json({ error: err, message: 'error through looking for file of same year' }));
     }
 })
 //update file
 router.put('/updatebudgetfile/:id', (req, res) => {
-    if (req.body.current === false) {
-        Budget.update(req.body, { where: { id: req.params.id } })
-            .then(info => res.status(200).json(info))
-            .catch(err => res.status(500).json({ error: err, message: 'file not updates' }))
-    }
-    else {
-        Budget.update({ current: false }, { where: { current: true } })
-            .then(info => {
-                Budget.update(req.body, { where: { id: req.params.id } })
-                    .then(info => res.status(200).json(info))
-                    .catch(err => res.status(500).json({ error: err, message: 'file not updates' }))
-            })
-            .catch(err => res.status(500).json({ error: err, message: 'previous current true file not changed to false' }))
-    }
+    Budget.update(req.body, { where: { id: req.params.id } })
+        .then(info => res.status(200).json(info))
+        .catch(err => res.status(500).json({ error: err, message: 'file not updates' }))
 })
 //delete file
 router.delete('/deletebudgetfile/:id', (req, res) => {
@@ -169,39 +125,6 @@ router.delete('/deletebudgetfile/:id', (req, res) => {
 })
 
 //edit meetings and events info::
-//get all created events (past and future)
-router.get('/alleventposts', (req, res) => {
-    let events = {
-        pastEvents: [],
-        futureEvents: []
-    };
-    Event.findAll({
-        where: {
-            dateOfEvent: {
-                [Op.gte]: new Date()
-            }
-        },
-        order: [['dateOfEvent', 'ASC'], ['timeOfEvent', 'ASC']]
-    })
-        .then(info => {
-            events.futureEvents = info;
-            Event.findAll({
-                where: {
-                    dateOfEvent: {
-                        [Op.lt]: new Date()
-                    }
-                },
-                order: [['dateOfEvent', 'DESC'], ['timeOfEvent', 'DESC']]
-            })
-                .then(info => {
-                    events.pastEvents = info;
-                })
-                .then(info => res.status(200).json(events))
-                .catch(err => res.status(500).json(err))
-        })
-        .catch(err => res.status(500).json(err))
-
-})
 //create new
 router.post('/createevent', (req, res) => {
     Event.create({
@@ -219,7 +142,6 @@ router.post('/createevent', (req, res) => {
         .then(response => res.status(200).json(response))
         .catch(err => res.status(500).json(err))
 })
-//get on by id
 //edit one
 router.put('/editevent/:id', (req, res) => {
     Event.update(req.body, { where: { id: req.params.id } })
