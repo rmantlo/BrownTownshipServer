@@ -127,20 +127,25 @@ router.delete('/deletebudgetfile/:id', (req, res) => {
 //edit meetings and events info::
 //create new
 router.post('/createevent', (req, res) => {
-    Event.create({
-        owner_id: req.user.id,
-        title: req.body.title,
-        forumMessage: req.body.message,
-        dateOfEvent: req.body.date,
-        timeOfEvent: req.body.time,
-        type: req.body.type,
-        streetAddress: req.body.location,
-        city: req.body.city,
-        state: req.body.state,
-        zipcode: req.body.zipcode
-    })
-        .then(response => res.status(200).json(response))
-        .catch(err => res.status(500).json(err))
+    if (req.body.fileType != 'application/pdf' && req.body.fileType != "No file") { res.status(500).json('File upload must be PDF') }
+    else {
+        Event.create({
+            owner_id: req.user.id,
+            title: req.body.title,
+            forumMessage: req.body.message,
+            dateOfEvent: req.body.date,
+            timeOfEvent: req.body.time,
+            type: req.body.type,
+            streetAddress: req.body.location,
+            city: req.body.city,
+            state: req.body.state,
+            zipcode: req.body.zipcode,
+            fileBinary: req.body.data,
+            fileType: req.body.fileType
+        })
+            .then(response => res.status(200).json(response), err => console.log(err))
+            .catch(err => res.status(500).json({ error: err, message: "create event" }), ugh => console.log(ugh))
+    }
 })
 //edit one
 router.put('/editevent/:id', (req, res) => {

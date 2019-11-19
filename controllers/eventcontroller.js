@@ -19,10 +19,10 @@ router.get('/alleventposts', (req, res) => {
                 if (a.dateOfEvent == null) {
                     events.tbdEvents.push(a);
                 }
-                else if (a.dateOfEvent >= new Date()) {
+                else if (new Date(a.dateOfEvent) >= new Date()) {
                     events.futureEvents.push(a);
                 }
-                else if (a.dateOfEvent < new Date()) {
+                else if (new Date(a.dateOfEvent) < new Date()) {
                     events.pastEvents.push(a)
                 }
                 else {

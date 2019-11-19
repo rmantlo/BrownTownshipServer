@@ -39,6 +39,14 @@ module.exports = function (sequelize, DataTypes) {
         zipcode: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        fileBinary: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        fileType: {
+            type: DataTypes.STRING,
+            allowNull: false
         }
     })
 }
