@@ -106,8 +106,8 @@ router.post('/uploaddocument', (req, res) => {
             fileType: req.body.fileType,
             fileBinary: req.body.data
         })
-            .then(post => res.status(200).json(post))
-            .catch(err => res.status(500).json(err))
+            .then(post => res.status(200).json(post), err => { res.status(400).json({ message: "notNullError", error: err })})
+            .catch(err => res.status(500).json(err), r => res.status(405).json(r))
 
     }
 })
@@ -143,7 +143,7 @@ router.post('/createevent', (req, res) => {
             fileBinary: req.body.data,
             fileType: req.body.fileType
         })
-            .then(response => res.status(200).json(response), err => console.log(err))
+            .then(response => res.status(200).json(response), err => res.status(400).json(err))
             .catch(err => res.status(500).json({ error: err, message: "create event" }), ugh => console.log(ugh))
     }
 })
