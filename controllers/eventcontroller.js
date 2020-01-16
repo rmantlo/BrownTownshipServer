@@ -7,30 +7,7 @@ let Op = require('sequelize').Op;
 //get upcoming events to display
 //get all created events (past and future)
 router.get('/alleventposts', (req, res) => {
-    // let events = {
-    //     pastEvents: [],
-    //     futureEvents: [],
-    //     tbdEvents: [],
-    //     others: []
-    // };
     Event.findAll({ order: [['dateOfEvent', 'ASC'], ['timeOfEvent', 'ASC']] })
-        // .then(info => {
-        //     info.forEach(a => {
-        //         if (a.dateOfEvent == null) {
-        //             events.tbdEvents.push(a);
-        //         }
-        //         else if (new Date(a.dateOfEvent) >= new Date()) {
-        //             events.futureEvents.push(a);
-        //         }
-        //         else if (new Date(a.dateOfEvent) < new Date()) {
-        //             events.pastEvents.push(a)
-        //         }
-        //         else {
-        //             events.others.push(a)
-        //             console.log(new Date())
-        //         }
-        //     })
-        // })
         .then(info => res.status(200).json(info))
         .catch(err => res.status(500).json(err));
 })
