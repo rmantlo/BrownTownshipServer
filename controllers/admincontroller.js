@@ -132,15 +132,15 @@ router.post('/createevent', (req, res) => {
         Event.create({
             owner_id: req.user.id,
             title: req.body.title,
-            forumMessage: req.body.message,
-            dateOfEvent: req.body.date,
-            timeOfEvent: req.body.time,
+            forumMessage: req.body.forumMessage,
+            dateOfEvent: req.body.dateOfEvent,
+            timeOfEvent: req.body.timeOfEvent,
             type: req.body.type,
-            streetAddress: req.body.location,
+            streetAddress: req.body.streetAddress,
             city: req.body.city,
             state: req.body.state,
             zipcode: req.body.zipcode,
-            fileBinary: req.body.data,
+            fileBinary: req.body.fileBinary,
             fileType: req.body.fileType
         })
             .then(response => res.status(200).json(response), err => res.status(400).json(err))
